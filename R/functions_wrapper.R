@@ -8290,13 +8290,15 @@ run_bootstrap <- function(model, results=NULL, resamples=1, ...) {
 #' @param naming_index_offset (numeric (optional)) index offset for naming of runs. Default is 0.
 #' @param nsamples (numeric) Number of samples from individual parameter conditional distribution for linear covariate model selection.
 #' Default is 10, i.e. generating 10 samples per subject
-#' @param .samba_max_covariates (numeric (optional)) Maximum number of covariate inclusion allowed in linear covariate screening for each parameter.
-#' @param .samba_selection_criterion (str) Method used to fit linear covariate models. Currently, Ordinary Least Squares (ols),
+#' @param samba_max_covariates (numeric (optional)) Maximum number of covariate inclusion allowed in linear covariate screening for each parameter.
+#' @param samba_linreg_method (str) Method used to fit linear covariate models. Currently, Ordinary Least Squares (ols),
 #' Weighted Least Squares (wls), and Linear Mixed-Effects (lme) are supported.
-#' @param .samba_linreg_method (str) Method used for linear and nonlinear model selection in SAMBA methods. Currently, BIC and LRT are
+#' @param samba_selection_criterion (str) Method used for linear and nonlinear model selection in SAMBA methods. Currently, BIC and LRT are
 #' supported.
-#' @param .samba_stepwise_lcs (logical (optional)) Use stepwise linear covariate screening or not. By default, SAMBA methods use stepwise LCS whereas SCM-LCS uses
+#' @param samba_stepwise_lcs (logical (optional)) Use stepwise linear covariate screening or not. By default, SAMBA methods use stepwise LCS whereas SCM-LCS uses
 #' non-stepwise LCS
+#' @param samba_nonmem_lcs (logical (optional)) Use nonmem or statsmodels for linear covariate screening. Default is True (nonmem)
+#' @param rank (numeric) Number of models to keep for wald test in WAM and score test in Score-based method. Default is 3
 #' @param ... Arguments to pass to tool
 #'  
 #' @return (COVSearchResults) COVsearch tool result object
@@ -8310,14 +8312,15 @@ run_bootstrap <- function(model, results=NULL, resamples=1, ...) {
 #' }
 #' 
 #' @export
-run_covsearch <- function(model, results, search_space, p_forward=0.01, p_backward=0.001, max_steps=-1, algorithm='scm-forward-then-backward', max_eval=FALSE, adaptive_scope_reduction=FALSE, strictness='minimization_successful or (rounding_errors and sigdigs>=0.1)', naming_index_offset=0, nsamples=10, .samba_max_covariates=3, .samba_selection_criterion='bic', .samba_linreg_method='ols', .samba_stepwise_lcs=NULL, ...) {
+run_covsearch <- function(model, results, search_space, p_forward=0.01, p_backward=0.001, max_steps=-1, algorithm='scm-forward-then-backward', max_eval=FALSE, adaptive_scope_reduction=FALSE, strictness='minimization_successful or (rounding_errors and sigdigs>=0.1)', naming_index_offset=0, nsamples=10, samba_max_covariates=3, samba_selection_criterion='bic', samba_linreg_method='ols', samba_stepwise_lcs=NULL, samba_nonmem_lcs=TRUE, rank=3, ...) {
 	tryCatch(
 	{
 		max_steps <- convert_input(max_steps, "int")
 		naming_index_offset <- convert_input(naming_index_offset, "int")
 		nsamples <- convert_input(nsamples, "int")
-		.samba_max_covariates <- convert_input(.samba_max_covariates, "int")
-		func_out <- pharmpy$tools$run_covsearch(model, results, search_space, p_forward=p_forward, p_backward=p_backward, max_steps=max_steps, algorithm=algorithm, max_eval=max_eval, adaptive_scope_reduction=adaptive_scope_reduction, strictness=strictness, naming_index_offset=naming_index_offset, nsamples=nsamples, `_samba_max_covariates`=.samba_max_covariates, `_samba_selection_criterion`=.samba_selection_criterion, `_samba_linreg_method`=.samba_linreg_method, `_samba_stepwise_lcs`=.samba_stepwise_lcs, ...)
+		rank <- convert_input(rank, "int")
+		samba_max_covariates <- convert_input(samba_max_covariates, "int")
+		func_out <- pharmpy$tools$run_covsearch(model, results, search_space, p_forward=p_forward, p_backward=p_backward, max_steps=max_steps, algorithm=algorithm, max_eval=max_eval, adaptive_scope_reduction=adaptive_scope_reduction, strictness=strictness, naming_index_offset=naming_index_offset, nsamples=nsamples, samba_max_covariates=samba_max_covariates, samba_selection_criterion=samba_selection_criterion, samba_linreg_method=samba_linreg_method, samba_stepwise_lcs=samba_stepwise_lcs, samba_nonmem_lcs=samba_nonmem_lcs, rank=rank, ...)
 		if ('pharmpy.workflows.results.Results' %in% class(func_out)) {
 			func_out <- reset_indices_results(func_out)
 		}
